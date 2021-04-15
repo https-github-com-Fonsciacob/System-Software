@@ -1,6 +1,6 @@
 use PedidosOnline
 go
---------------------------------------Vista-Cliente---------------------------------------------
+--------------------------------------VISTA CLIENTES---------------------------------------------
 DROP PROC Sp_VistaCliente
 GO
 CREATE PROCEDURE Sp_VistaCliente
@@ -9,17 +9,7 @@ select * from Cliente
 go 
 exec Sp_VistaCliente
 go
---------------------------------------Vista-Empleado---------------------------------------------
-DROP PROC Sp_VistaEmpleado
-GO
-CREATE PROCEDURE Sp_VistaEmpleado
-as
-select * from Empleados
-go
-
-exec Sp_VistaEmpleado
-go
---------------------------------------Vista Empleado(Cocina)--------------------------------------
+--------------------------------------Vista Empleado(COCINA)--------------------------------------
 DROP PROC Sp_VistaCocina
 GO
 CREATE PROCEDURE Sp_VistaCocina
@@ -29,21 +19,21 @@ GO
 
 EXEC Sp_VistaCocina
 GO
---------------------------------------Vista Empleado(Mostrador)--------------------------------------
+--------------------------------------Vista Empleado(MOSTRADOR)--------------------------------------
 DROP PROC Sp_VistaMostrador
 GO
 CREATE PROCEDURE Sp_VistaMostrador
 AS
 SELECT*FROM Empleados WHERE IdArea='MOS'
 GO
---------------------------------------Vista Empleado(Envios)--------------------------------------
+--------------------------------------Vista Empleado(ENVIOS)--------------------------------------
 DROP PROC Sp_VistaEmpEnvio
 GO
 CREATE PROCEDURE Sp_VistaEmpEnvio
 AS
 SELECT*FROM Empleados WHERE IdArea='ENV'
 GO
---------------------------------------Vista-Productos---------------------------------------------
+--------------------------------------VISTA PRODUCTOS---------------------------------------------
 DROP PROC Sp_VistaProductos
 GO
 CREATE PROCEDURE Sp_VistaProductos
@@ -53,17 +43,7 @@ go
 
 exec Sp_VistaProductos
 go
---------------------------------------Vista-Produccion---------------------------------------------
-DROP PROC Sp_VistaProduccion
-GO
-CREATE PROCEDURE Sp_VistaProduccion
-as
-Select * from Produccion
-go
-
-exec Sp_VistaProduccion
-go
---------------------------------------Vista-AreaTrabajo---------------------------------------------
+------------------------------VISTA AREA DE TRABAJO---------------------------------------------
 USE PedidosOnline
 GO
 DROP PROC Sp_VistaAreaTrabajo
@@ -76,7 +56,7 @@ go
 exec Sp_VistaAreaTrabajo
 go
 
---------------------------------------Vista-CategoriaProd---------------------------------------------
+--------------------------------------VISTA CATEGORIA PRODUCTO---------------------------------------------
 DROP PROC Sp_VistaCategoriaProd
 GO
 CREATE PROCEDURE Sp_VistaCategoriaProd
@@ -87,7 +67,7 @@ go
 exec Sp_VistaCategoriaProd
 Go
 
---------------------------------------Vista-Pedidos---------------------------------------------
+--------------------------------------VISTA PEDIDOS---------------------------------------------
 DROP PROC Sp_VistaPedidos
 GO
 CREATE PROCEDURE Sp_VistaPedidos
@@ -127,7 +107,7 @@ go
 
 exec Sp_VistaPedidosLisEnv
 go
---------------------------------------Vista-DetallePedido---------------------------------------------
+--------------------------------------VISTA DETALLE PEDIDO---------------------------------------------
 DROP PROC Sp_VistaDetallePedido
 GO
 CREATE PROCEDURE Sp_VistaDetallePedido
@@ -147,17 +127,6 @@ Go
 
 exec Sp_VistaEnvio
 go
---------------------------------------Vista-logins---------------------------------------------
-DROP PROC Sp_VistaLogins
-GO
-CREATE PROCEDURE Sp_VistaLogins
-as
-Select * from logins
-go
-
-exec Sp_VistaLogins
-go
-
 --------------------------------------Vista-Ventas---------------------------------------------
 DROP PROC Sp_VistaVentas
 GO
@@ -177,7 +146,32 @@ as
 begin
 	Select * from Empleados where Id=@id
 end
-
 ----------------------------------------------------------------------------------------------------------
 EXEC Sp_VistaEmpleado 'A-002'
 GO
+
+DROP PROC Sp_countTables
+GO
+CREATE PROC Sp_countTables
+@intE VARCHAR(10) OUTPUT,
+@intPr VARCHAR(10) OUTPUT,
+@intPe VARCHAR(15) OUTPUT,
+@intCl VARCHAR(10) OUTPUT
+AS 
+	BEGIN
+		SET @intE=(SELECT COUNT(Id) FROM Empleados)
+		SET @intPr=(SELECT COUNT(Id) FROM Productos)
+		SET @intPe=(SELECT COUNT(Id) FROM Pedidos)
+		SET @intCl=(SELECT COUNT(Id) FROM Cliente)
+	END
+
+DECLARE @E VARCHAR(10)
+DECLARE @Pr VARCHAR(10)
+DECLARE @Pe VARCHAR(10)
+DECLARE @Cl VARCHAR(10)
+EXEC Sp_countTables @E OUTPUT,@Pr OUTPUT,@Pe OUTPUT,@Cl OUTPUT
+SELECT @E 
+SELECT @Pr 
+SELECT @Pe 
+SELECT @Cl 
+

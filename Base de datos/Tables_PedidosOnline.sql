@@ -13,6 +13,27 @@ CREATE TABLE AreaDeTrabajo(
 	Id CHAR(3) NOT NULL PRIMARY KEY,
     NameArea VARCHAR(40) NOT NULL
 );
+DROP TABLE IF EXISTS Empleados;
+create table Empleados(
+	Id CHAR(5) NOT NULL PRIMARY KEY,
+    IdArea CHAR(3) NOT NULL,
+    foreign key (IdArea) REFERENCES AreaDeTrabajo(Id),
+    Nombres VARCHAR(50) NOT NULL,
+    Apellidos VARCHAR(100) NOT NULL,
+    DNI CHAR(8) NOT NULL,
+    Contraseña VARCHAR (50) NOT NULL
+);
+
+DROP TABLE IF EXISTS Cliente;
+CREATE TABLE Cliente(
+	Id CHAR(5) NOT NULL PRIMARY KEY,
+    Nombres VARCHAR(50) NOT NULL,
+    Apellido VARCHAR(50) NOT NULL,
+    DNI CHAR(8) NOT NULL UNIQUE,
+    Distrito VARCHAR(70) NOT NULL,
+    Correo VARCHAR(90) NOT NULL UNIQUE,
+    Contraseña VARCHAR(50) NOT NULL
+);
 
 DROP TABLE IF EXISTS CategoriaProd;
 create table CategoriaProd(
@@ -27,34 +48,7 @@ create table Productos(
     IdCategoria CHAR(5) NOT NULL,
     FOREIGN KEY (IdCategoria) REFERENCES CategoriaProd(Id),
     Nombre VARCHAR(40),
-    Precio INT
-);
-
-DROP TABLE IF EXISTS Empleados;
-create table Empleados(
-	Id CHAR(5) NOT NULL PRIMARY KEY,
-    IdArea CHAR(3) NOT NULL,
-    foreign key (IdArea) REFERENCES AreaDeTrabajo(Id),
-    Nombres VARCHAR(50) NOT NULL,
-    Apellidos VARCHAR(100) NOT NULL,
-    DNI CHAR(8) NOT NULL,
-    Contraseña VARCHAR (50) NOT NULL
-);
-
-DROP TABLE IF EXISTS logins;
-CREATE TABLE logins(
-	Username VARCHAR(50) NOT NULL,
-    Pass VARCHAR (150) NOT NULL
-);
-
-DROP TABLE IF EXISTS Cliente;
-CREATE TABLE Cliente(
-	Id CHAR(5) NOT NULL PRIMARY KEY,
-    Nombres VARCHAR(50) NOT NULL,
-    Apellido VARCHAR(50) NOT NULL,
-    DNI CHAR(8) NOT NULL UNIQUE,
-    Correo VARCHAR(90) NOT NULL UNIQUE,
-    Contraseña VARCHAR(50) NOT NULL
+    Precio MONEY
 );
 
 DROP TABLE IF EXISTS Pedidos;
@@ -63,13 +57,15 @@ CREATE TABLE Pedidos(
 	IdCliente CHAR(5) NOT NULL,
     foreign key (IdCliente) references Cliente(Id),
     IdProducto CHAR(5) NOT NULL,
+	FOREIGN KEY(IdProducto) REFERENCES Productos(Id),
     Nombre VARCHAR(70) NOT NULL,
-    CantidadProd INT,
-    PrecioTotal INT,
+    CantidadProd INT NOT NULL,
+    PrecioTotal MONEY NOT NULL,
+    Distrito VARCHAR(70) NOT NULL,
+    Direccion VARCHAR(70) NOT NULL,
+    Fecha SMALLDATETIME,
     Estado VARCHAR(50) DEFAULT 'Pendiente'
 );
-
-ALTER TABLE Pedidos ADD FOREIGN KEY (IdProducto) REFERENCES Productos(Id);
 
 DROP TABLE IF EXISTS DetallePedido;
 CREATE TABLE DetallePedido(
@@ -78,7 +74,7 @@ CREATE TABLE DetallePedido(
     IdProducto CHAR(5) NOT NULL,
     Nombre VARCHAR(70) NOT NULL,
     Cantidad INT NOT NULL,
-    Subtotal INT NOT NULL,
+    Subtotal MONEY NOT NULL,
     Estado VARCHAR(40) DEFAULT 'Pendiente'
 );
 
@@ -88,28 +84,29 @@ DROP TABLE IF EXISTS Envio;
 CREATE TABLE Envio(
 	IdPedido CHAR(5) NOT NULL,
     CONSTRAINT PedidosFK FOREIGN KEY (IdPedido) references Pedidos(Id) ON DELETE CASCADE,
-    IdEmpleado CHAR(5) NOT NULL,
+    IdEmpleado CHAR(5),
     CONSTRAINT EmpleadosFK FOREIGN KEY (IdEmpleado) references Empleados(Id),
-    Nombres VARCHAR(40) NOT NULL,
-    Apellidos VARCHAR(50) NOT NULL,
-    DNI CHAR(8) NOT NULL,
-    Estado VARCHAR(50) DEFAULT 'Pendiente'
+    Nombres VARCHAR(80),
+    Estado VARCHAR(50) DEFAULT 'Pendiente',
+	Distrito VARCHAR(70),
+	Direccion VARCHAR(70),
+    PrecioTotal MONEY,
+    Fecha SMALLDATETIME
 );
 
-DROP TABLE IF EXISTS Produccion;
-CREATE TABLE Produccion(
-	IdPedido CHAR(5) NOT NULL,
-    CONSTRAINT Pedidos1FK FOREIGN KEY (IdPedido) references Pedidos(Id) ON DELETE CASCADE,
-    IdProducto CHAR(5) NOT NULL,
-    CONSTRAINT Producto1FK FOREIGN KEY (IdProducto) references Productos(Id),
-    Nombre VARCHAR(40) NOT NULL,
-    Estado VARCHAR(50) NOT NULL DEFAULT 'Pendiente',
-    Cantidad INT NOT NULL
-);
+--DROP TABLE IF EXISTS Produccion;
+--CREATE TABLE Produccion(
+--	IdPedido CHAR(5) NOT NULL,
+--    CONSTRAINT Pedidos1FK FOREIGN KEY (IdPedido) references Pedidos(Id) ON DELETE CASCADE,
+--    NombreProducto VARCHAR(40) NOT NULL,
+--    Estado VARCHAR(50) NOT NULL DEFAULT 'Pendiente',
+--    Cantidad INT NOT NULL,
+--    Fecha SMALLDATETIME
+--);
 
-DROP TABLE IF EXISTS Ventas;
+DROP TABLE IF EXISTS VENTAS;
 CREATE TABLE Ventas(
 	IdPedido CHAR(5) NOT NULL FOREIGN KEY REFERENCES Pedidos(Id) ON DELETE CASCADE,
-    Precio INT NOT NULL
+    Precio FLOAT NOT NULL
 );
 

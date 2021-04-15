@@ -1,16 +1,4 @@
 USE PedidosOnline;
-----------------------ADMINISTRADOR
-DROP PROCEDURE IF EXISTS sp_updateAdmin
-GO
-CREATE PROCEDURE sp_updateAdmin
-    @id CHAR(5),
-    @Nombre VARCHAR(50),
-    @Apellidos VARCHAR(100),
-    @pass VARCHAR(50)
-AS
-    UPDATE Administrador SET Nombre=@Nombre,Apellido=@Apellidos,Contraseña=@pass
-    WHERE Id=@id
-GO
 --------------------EMPLEADO
 DROP PROCEDURE IF EXISTS sp_updateEmpleados
 GO
@@ -61,13 +49,13 @@ AS
     UPDATE AreaDeTrabajo SET NameArea=@Nombre
     WHERE Id=@id
 GO
---------------------Menu
+--------------------MENU
 DROP PROCEDURE IF EXISTS sp_updateMenu
 GO
 CREATE PROCEDURE sp_updateMenu
     @id CHAR(5),
     @nombre VARCHAR(50),
-    @price INT,
+    @price MONEY,
     @result VARCHAR(50) OUTPUT
 AS
     UPDATE Productos SET Nombre=@nombre,Precio=@price

@@ -44,13 +44,15 @@ GO
 DROP PROC Sp_InsertarCatProducto
 GO
 CREATE PROC Sp_InsertarCatProducto
-@NombreCateGOría VARCHAR(40)
+@NombreCateGOría VARCHAR(40),
+@mensaje VARCHAR(50) OUTPUT
 as
 	DECLARE @result char(5),@id char(5);
 	EXEC sp_genCode'CategoriaProd','P-',@result output;
 	SET @id = @result
 	insert into CateGOriaProd(Id,NombreCat)
 	values(@id,@NombreCateGOría)
+	SET @mensaje='Categoria Ingresado'
 
 exec Sp_InsertarCatProducto Limpieza
 GO
@@ -64,18 +66,15 @@ CREATE PROC Sp_InsertarCliente
 @Nombre VARCHAR(50),
 @Apellido VARCHAR(50),
 @DNI char(8),
+@Distrito VARCHAR(70),
 @correo VARCHAR(90),
 @Contraseña VARCHAR(50)
 as
 	DECLARE @result char(5),@id char(5);
 	EXEC sp_genCode'Cliente','C-',@result output;
 	SET @id = @result
-	INSERT INTO Cliente(Id,Nombres,Apellido,DNI,Correo,Contraseña)
-	VALUES(@id,@Nombre,@Apellido,@DNI,@correo,@Contraseña)
-GO
-----------------------Detalle Pedido-------------------------------------------------
---Acá son trigger
-
+	INSERT INTO Cliente(Id,Nombres,Apellido,DNI,Distrito,Correo,Contraseña)
+	VALUES(@id,@Nombre,@Apellido,@DNI,@Distrito,@correo,@Contraseña)
 GO
 ---------------------Empleados(INCLUYE AL EMPLEADO Y ADMINISTRADOR)-------------------------------------------------------
 DROP PROC Sp_InsertarEmpleado
@@ -115,19 +114,21 @@ GO
 CREATE PROC Sp_InsertarPedidos
 @IdCliente char(5),
 @Cantidad int,
-@IdProducto char(5)
+@IdProducto char(5),
+@Distrito VARCHAR(70),
+@Direccion VARCHAR(70)
 as
-	DECLARE @result char(5), @Id char(5), @Total char(50), @precio char(50),@nomProd VARCHAR(70);
+	DECLARE @result char(5), @id char(5), @total MONEY, @precio MONEY,@nomProd VARCHAR(70),@time SMALLDATETIME;
 	EXEC sp_genCode'Pedidos','D-',@result output;
+
+	SET @time=GETDATE();
 	SET @Id = (SELECT @result);
-	SET @precio = (select(precio) from Productos where Id = @IdProducto)
+	SET @precio = (SELECT(precio) FROM Productos WHERE Id = @IdProducto)
 	SET @nomProd=(SELECT(Nombre) FROM Productos WHERE Id=@IdProducto)
-	SET @Total = @precio * @Cantidad
-	insert into Pedidos(Id,IdCliente,IdProducto,Nombre,CantidadProd,PrecioTotal)
-	values(@Id,@IdCliente,@IdProducto,@nomProd,@Cantidad,@Total)
-GO
----------------------------------Producción-------------------------------------------
---- Denuevo triggers :v 
+	SET @total = @precio * @Cantidad
+
+	INSERT INTO Pedidos(Id,IdCliente,IdProducto,Nombre,CantidadProd,PrecioTotal,Distrito,Direccion,Fecha)
+	VALUES(@id,@IdCliente,@IdProducto,@nomProd,@Cantidad,@total,@Distrito,@Direccion,@time)
 GO
 ---------------------------------CateGOrias Productos--------------------------------------------
 DROP PROC Sp_InsertarCatProducto
@@ -149,7 +150,7 @@ GO
 CREATE PROC Sp_InsertarProducto
 @IdCateGOria char(5),
 @Nombre VARCHAR(40),
-@Precio int,
+@Precio MONEY,
 @Mensaje VARCHAR(50) OUTPUT
 as
 	DECLARE @result char(5);

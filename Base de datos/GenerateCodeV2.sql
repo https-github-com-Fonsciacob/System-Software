@@ -48,7 +48,7 @@ AS
 			IF(@capId=@cod)
 				BEGIN
 					SET @maxInt=(SELECT SUBSTRING(@capMax,5,1) as ExtractString)+1;
-					SET @cod=CONCAT(@letter,REPLICATE(0,2 - LEN(@maxInt)),@maxInt);
+					SET @cod=CONCAT(@letter,REPLICATE(0,3 - LEN(@maxInt)),@maxInt);
 					SET @result=@cod;
 				RETURN
 				END
@@ -57,4 +57,8 @@ AS
 		RETURN
 	END
 GO
+
+DECLARE @mensaje VARCHAR(50)
+EXEC sp_genCode 'Productos','F-',@mensaje OUTPUT
+SELECT @mensaje
        

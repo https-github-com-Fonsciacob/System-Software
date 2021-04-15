@@ -8,49 +8,67 @@ ON Productos
 AFTER INSERT,UPDATE,DELETE
 AS
     DECLARE @idCategoria CHAR(5),@count int
-    SELECT @idCategoria=IdCategoria FROM INSERTED
-    SELECT @idCategoria=IdCategoria FROM DELETED
-    
-    SELECT @count=(SELECT COUNT(IdCategoria) FROM Productos WHERE IdCategoria=@idCategoria)
 
-    UPDATE CategoriaProd SET Cantidad=@count 
-    WHERE Id=@idCategoria
+    IF EXISTS (SELECT*FROM inserted) and NOT EXISTS (SELECT*FROM deleted)
+    BEGIN
+        SELECT @idCategoria=IdCategoria FROM INSERTED
+        SELECT @count=(SELECT COUNT(IdCategoria) FROM Productos WHERE IdCategoria=@idCategoria)
+        UPDATE CategoriaProd SET Cantidad=@count 
+        WHERE Id=@idCategoria
+    END
+
+    IF EXISTS (SELECT* FROM deleted) and NOT EXISTS (SELECT*FROM inserted)
+    BEGIN
+        SELECT @idCategoria=IdCategoria FROM DELETED
+        SELECT @count=(SELECT COUNT(IdCategoria) FROM Productos WHERE IdCategoria=@idCategoria)
+        UPDATE CategoriaProd SET Cantidad=@count 
+        WHERE Id=@idCategoria
+    END
 
 GO
 
 SELECT COUNT(IdCategoria) FROM Productos WHERE IdCategoria='P-001'
---------------------------------------------------------------------------------------
--------------PRODCUCIÓN---------------------------
-DROP TRIGGER IF EXISTS Tg_Produccion
-GO
-CREATE TRIGGER Tg_Produccion ON Pedidos AFTER INSERT
-AS
-DECLARE @IdPedido char(5), @IdProducto char(5), @nomProd varchar(70), @Cantidad int;
-    SELECT @IdPedido = Id FROM inserted
-    SELECT @IdProducto = IdProducto from inserted
-    SELECT @nomProd=Nombre FROM inserted
-    SELECT @Cantidad = CantidadProd from inserted
-    INSERT INTO Produccion(IdPedido,IdProducto,Nombre,Cantidad) VALUES(@IdPedido,@IdProducto,@nomProd,@Cantidad)
-GO
--------------------------------------------------------------------------
-------------------CLIENTE------------------------------
+
+------------------INSERTAR DETALLE PEDIDO Y ENVIO------------------------------
 DROP TRIGGER IF EXISTS Tg_DetallePedido
 GO
 CREATE TRIGGER Tg_DetallePedido ON Pedidos AFTER INSERT
-AS
+AS 
 DECLARE @IdPedido char(5), @IdProducto char(5), @Cantidad int, 
-        @Impuesto int,@Subtotal int,@nomProd VARCHAR(70)
+        @Impuesto int,@Subtotal MONEY,@nomProd VARCHAR(70),@tPrice MONEY,@fecha SMALLDATETIME,
+		@distrito VARCHAR(70),@direccion VARCHAR(70)
         
-    SELECT @IdPedido = Id FROM inserted
-    SELECT @IdProducto = IdProducto FROM inserted
-    SELECT @Cantidad = CantidadProd FROM inserted
-    SELECT @nomProd=   Nombre FROM inserted
+    SELECT @IdPedido=Id FROM inserted
+    SELECT @IdProducto=IdProducto FROM inserted
+    SELECT @Cantidad=CantidadProd FROM inserted
+    SELECT @nomProd=Nombre FROM inserted
+	SELECT @distrito=Distrito FROM inserted
+	SELECT @direccion=Direccion FROM inserted
+    SELECT @fecha=Fecha FROM inserted
+    SELECT @tPrice=PrecioTotal FROM inserted
+
     SET @Impuesto = ((SELECT (PrecioTotal) FROM Pedidos where Id = @IdPedido)*(0.05))
     SET @Subtotal=(SELECT (PrecioTotal) FROM Pedidos where Id = @IdPedido)-@Impuesto
-    INSERT INTO DetallePedido(IdPedido,IdProducto,Nombre,Cantidad,Subtotal) VALUES(@IdPedido,@IdProducto,@nomProd,@Cantidad,@Subtotal)
-GO---------------------------------------------------------------------------
 
-CREATE TRIGGER Tg_Envio ON Pedidos AFTER INSERT
-as
-DECLARE @IdPedido char(5),@Nombres varchar(40), @Apellidos varchar(40),@DNI char(8)
-SELECT @IdPedido = (Id) FROM inserted    
+    -------------------DETALLE PEDIDO-------------------------------------
+    INSERT INTO DetallePedido(IdPedido,IdProducto,Nombre,Cantidad,Subtotal) 
+    VALUES(@IdPedido,@IdProducto,@nomProd,@Cantidad,@Subtotal)
+    -------------------ENVIO-----------------------------------------------
+    INSERT INTO Envio(IdPedido,PrecioTotal,Distrito,Direccion,Fecha)
+    VALUES(@IdPedido,@tPrice,@distrito,@direccion,@fecha)
+GO
+
+------------------ACTUALIZAR ESTADO DEL ENVIO------------------------------
+
+DROP TRIGGER IF EXISTS tg_updateEnvio
+GO
+CREATE TRIGGER g_updateEnvio ON Pedidos AFTER UPDATE
+AS
+    DECLARE @state VARCHAR(70),@id CHAR(5)
+
+    SELECT @state=Estado FROM inserted
+    SELECT @id=Id FROM inserted
+
+    UPDATE Envio SET Estado=@state 
+	WHERE IdPedido=@id
+GO

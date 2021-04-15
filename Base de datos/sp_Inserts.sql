@@ -43,11 +43,11 @@ SELECT @Mensaje2
 --EXEC Sp_InsertarProducto 'P-001','MEGA PODEROSO',85,@Mensaje2 OUTPUT
 --SELECT @Mensaje2
 ------------------------------INSERTAR CLIENTE----------------------------------------------
-EXEC Sp_InsertarCliente 'Fonsciareli','Mendoza Cobeñas','74737674','fonscia_cob1905@hotmail.com','Epson2001'
+EXEC Sp_InsertarCliente 'Giordanny','Bobadilla','62737144','Comas','giorgo_2000@hotmail.com','ubv,890'
 ------------------------------INSERTAR PEDIDO------------------------------------------------
 USE PedidosOnline
 GO
-EXEC Sp_InsertarPedidos 'C-001',2,'F-001'
+EXEC Sp_InsertarPedidos 'C-001',2,'F-001','Comas','Correa 177'
 --SELECT*FROM Empleados
 --DELETE FROM EMPLEADOS
 --SELECT*FROM Administrador
