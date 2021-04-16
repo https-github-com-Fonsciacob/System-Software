@@ -81,6 +81,7 @@ CREATE TABLE DetallePedido(
     Cantidad INT NOT NULL,
     Subtotal MONEY NOT NULL,
 	Total MONEY NOT NULL,
+	Fecha SMALLDATETIME,
     Estado VARCHAR(40) DEFAULT 'Pendiente'
 );
 

@@ -51,8 +51,8 @@ DECLARE @IdPedido char(5), @IdProducto char(5), @Cantidad int,
     SET @Subtotal=(SELECT (PrecioTotal) FROM Pedidos where Id = @IdPedido)-@Impuesto
 
     -------------------DETALLE PEDIDO-------------------------------------
-    INSERT INTO DetallePedido(IdPedido,IdProducto,NombreProducto,Cantidad,Subtotal,Total) 
-    VALUES(@IdPedido,@IdProducto,@nomProd,@Cantidad,@Subtotal,@tPrice)
+    INSERT INTO DetallePedido(IdPedido,IdProducto,NombreProducto,Cantidad,Subtotal,Total,Fecha) 
+    VALUES(@IdPedido,@IdProducto,@nomProd,@Cantidad,@Subtotal,@tPrice,@fecha)
 GO
 
 ------------------ACTUALIZAR ESTADO DEL ENVIO------------------------------
