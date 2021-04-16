@@ -29,7 +29,7 @@ GO
 
 SELECT COUNT(IdCategoria) FROM Productos WHERE IdCategoria='P-001'
 
-------------------INSERTAR DETALLE PEDIDO Y ENVIO------------------------------
+------------------INSERTAR DETALLE PEDIDO------------------------------
 DROP TRIGGER IF EXISTS Tg_DetallePedido
 GO
 CREATE TRIGGER Tg_DetallePedido ON Pedidos AFTER INSERT
@@ -51,11 +51,8 @@ DECLARE @IdPedido char(5), @IdProducto char(5), @Cantidad int,
     SET @Subtotal=(SELECT (PrecioTotal) FROM Pedidos where Id = @IdPedido)-@Impuesto
 
     -------------------DETALLE PEDIDO-------------------------------------
-    INSERT INTO DetallePedido(IdPedido,IdProducto,Nombre,Cantidad,Subtotal) 
-    VALUES(@IdPedido,@IdProducto,@nomProd,@Cantidad,@Subtotal)
-    -------------------ENVIO-----------------------------------------------
-    INSERT INTO Envio(IdPedido,PrecioTotal,Distrito,Direccion,Fecha)
-    VALUES(@IdPedido,@tPrice,@distrito,@direccion,@fecha)
+    INSERT INTO DetallePedido(IdPedido,IdProducto,NombreProducto,Cantidad,Subtotal,Total) 
+    VALUES(@IdPedido,@IdProducto,@nomProd,@Cantidad,@Subtotal,@tPrice)
 GO
 
 ------------------ACTUALIZAR ESTADO DEL ENVIO------------------------------
@@ -69,6 +66,6 @@ AS
     SELECT @state=Estado FROM inserted
     SELECT @id=Id FROM inserted
 
-    UPDATE Envio SET Estado=@state 
+    UPDATE DetallePedido SET Estado=@state 
 	WHERE IdPedido=@id
 GO

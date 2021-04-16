@@ -13,6 +13,7 @@ CREATE TABLE AreaDeTrabajo(
 	Id CHAR(3) NOT NULL PRIMARY KEY,
     NameArea VARCHAR(40) NOT NULL
 );
+
 DROP TABLE IF EXISTS Empleados;
 create table Empleados(
 	Id CHAR(5) NOT NULL PRIMARY KEY,
@@ -21,6 +22,7 @@ create table Empleados(
     Nombres VARCHAR(50) NOT NULL,
     Apellidos VARCHAR(100) NOT NULL,
     DNI CHAR(8) NOT NULL,
+	Img image, 
     Contraseña VARCHAR (50) NOT NULL
 );
 
@@ -56,6 +58,8 @@ CREATE TABLE Pedidos(
 	Id CHAR(5) NOT NULL PRIMARY KEY,
 	IdCliente CHAR(5) NOT NULL,
     foreign key (IdCliente) references Cliente(Id),
+	IdEnvio CHAR(5),
+	FOREIGN KEY (IdEnvio) REFERENCES Empleados(Id),
     IdProducto CHAR(5) NOT NULL,
 	FOREIGN KEY(IdProducto) REFERENCES Productos(Id),
     Nombre VARCHAR(70) NOT NULL,
@@ -70,43 +74,22 @@ CREATE TABLE Pedidos(
 DROP TABLE IF EXISTS DetallePedido;
 CREATE TABLE DetallePedido(
 	IdPedido CHAR(5) NOT NULL,
-	CONSTRAINT IdPedidosFK foreign key (IdPedido) references Pedidos(Id) ON DELETE CASCADE,
-    IdProducto CHAR(5) NOT NULL,
-    Nombre VARCHAR(70) NOT NULL,
+	CONSTRAINT IdPedidosFK FOREIGN KEY (IdPedido) references Pedidos(Id) ON DELETE CASCADE,
+	IdProducto CHAR(5) NOT NULL,
+	FOREIGN KEY(IdProducto) REFERENCES Productos(Id),
+	NombreProducto VARCHAR(70) NOT NULL,
     Cantidad INT NOT NULL,
     Subtotal MONEY NOT NULL,
+	Total MONEY NOT NULL,
     Estado VARCHAR(40) DEFAULT 'Pendiente'
 );
 
-ALTER TABLE DetallePedido ADD CONSTRAINT ProductoPK FOREIGN KEY (IdProducto) references Productos(Id);
 
-DROP TABLE IF EXISTS Envio;
-CREATE TABLE Envio(
-	IdPedido CHAR(5) NOT NULL,
-    CONSTRAINT PedidosFK FOREIGN KEY (IdPedido) references Pedidos(Id) ON DELETE CASCADE,
-    IdEmpleado CHAR(5),
-    CONSTRAINT EmpleadosFK FOREIGN KEY (IdEmpleado) references Empleados(Id),
-    Nombres VARCHAR(80),
-    Estado VARCHAR(50) DEFAULT 'Pendiente',
-	Distrito VARCHAR(70),
-	Direccion VARCHAR(70),
-    PrecioTotal MONEY,
-    Fecha SMALLDATETIME
-);
-
---DROP TABLE IF EXISTS Produccion;
---CREATE TABLE Produccion(
---	IdPedido CHAR(5) NOT NULL,
---    CONSTRAINT Pedidos1FK FOREIGN KEY (IdPedido) references Pedidos(Id) ON DELETE CASCADE,
---    NombreProducto VARCHAR(40) NOT NULL,
---    Estado VARCHAR(50) NOT NULL DEFAULT 'Pendiente',
---    Cantidad INT NOT NULL,
---    Fecha SMALLDATETIME
---);
-
-DROP TABLE IF EXISTS VENTAS;
-CREATE TABLE Ventas(
-	IdPedido CHAR(5) NOT NULL FOREIGN KEY REFERENCES Pedidos(Id) ON DELETE CASCADE,
-    Precio FLOAT NOT NULL
-);
+DROP TABLE IF EXISTS Proveedor
+CREATE TABLE Proveedor(
+	Id CHAR(5) PRIMARY KEY NOT NULL,
+	Nombre VARCHAR(80) NOT NULL,
+	Email VARCHAR(80) NOT NULL,
+	Telefono CHAR(9) NOT NULL,
+)
 

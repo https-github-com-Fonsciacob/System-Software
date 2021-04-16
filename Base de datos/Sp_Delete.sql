@@ -57,7 +57,7 @@ AS
 GO
 
 DECLARE @resultado VARCHAR(50)
-EXEC Sp_deleteMenu 'F-004' ,@resultado OUTPUT
+EXEC Sp_deleteMenu 'F-002' ,@resultado OUTPUT
 SELECT @resultado
 
 --------------------------------------------------------------------------------------------------------

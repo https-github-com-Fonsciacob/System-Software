@@ -10,22 +10,15 @@ CREATE PROC Sp_LogeoPedido(
 @IdArea CHAR(3) OUTPUT
 )
 as
-	DECLARE @V_Admin VARCHAR(50), @V_Empleado VARCHAR(50),@idCat CHAR(1);
-	SET @V_Admin = (SElECT (Id) FROM Administrador where Id= @P_user and Contraseña= @P_Pass)
+	DECLARE @V_Empleado VARCHAR(50),@idCat CHAR(1);
 	SET @V_Empleado = (SElECT (Id) FROM Empleados where Id= @P_user and Contraseña= @P_Pass)
 
-	if(@V_Admin != '')
-	begin
-		SET @Variable = @V_Admin
-	    SET @IdArea=(SELECT (IdArea) FROM Administrador WHERE Id=@P_User AND Contraseña=@P_Pass)
-		RETURN
-	end
-	if(@V_Empleado !='')
-	begin
+	IF(@V_Empleado !='')
+	BEGIN
 		SET @Variable = @V_Empleado;
 	    SET @IdArea=(SELECT (IdArea) FROM Empleados WHERE Id=@P_User AND Contraseña=@P_Pass)
 		RETURN
-	end
+	END
 GO
 
 
@@ -40,7 +33,7 @@ insert into AreaDeTrabajo(Id,NameArea)
 values(@Id,@NombreArea)
 GO
 
------------------------- CateGOria Producto-------------------------------------------
+------------------------ Categoria Producto-------------------------------------------
 DROP PROC Sp_InsertarCatProducto
 GO
 CREATE PROC Sp_InsertarCatProducto
@@ -84,6 +77,7 @@ CREATE PROC Sp_InsertarEmpleado(
 @Nombres VARCHAR(50),
 @Apellidos VARCHAR(100),
 @DNI char(8),
+@img image,
 @Mensaje VARCHAR(50) OUTPUT
 )
 as
@@ -92,11 +86,11 @@ as
 	DECLARE @Contraseña VARCHAR(50)
 	IF(@Area='ADM')
 		BEGIN
-			EXEC sp_genCode'Administrador','A-',@result output;
+			EXEC sp_genCode'Empleados','A-',@result output;
 			SET @Id = (SELECT @result);
 			SET @Contraseña = @DNI
-			INSERT INTO Empleados(Id,IdArea,Nombre, Apellido, DNI, Contraseña)
-			VALUES(@Id,@Area,@Nombres,@Apellidos,@DNI,@Contraseña)
+			INSERT INTO Empleados(Id,IdArea,Nombres, Apellidos, DNI,Img, Contraseña)
+			VALUES(@Id,@Area,@Nombres,@Apellidos,@DNI,@img,@Contraseña)
 			SET @Mensaje='Administrador Registrado'
 			RETURN
 		END
@@ -104,8 +98,8 @@ as
 		EXEC sp_genCode'Empleados','E-',@result output;
 		SET @Id = (SELECT @result);
 		SET @Contraseña = @DNI
-		INSERT INTO Empleados(Id,IdArea,Nombres, Apellidos, DNI, Contraseña)
-		VALUES(@Id,@Area,@Nombres,@Apellidos,@DNI,@Contraseña)
+		INSERT INTO Empleados(Id,IdArea,Nombres, Apellidos, DNI,Img, Contraseña)
+		VALUES(@Id,@Area,@Nombres,@Apellidos,@DNI,@img,@Contraseña)
 		SET @Mensaje='Empleado Registrado'
 GO
 ---------------------------------Pedidos----------------------------------------------
@@ -143,7 +137,7 @@ SET @id = @result
 	insert into CateGOriaProd(Id,NombreCat)
 	values(@id,@NombreCateGOría)
 	SET @Mensaje='Categoria Insertado'
-
+GO
 ---------------------------------MENU--------------------------------------------
 DROP PROCEDURE IF EXISTS Sp_InsertarProducto
 GO
@@ -162,13 +156,3 @@ as
 	SET @Mensaje='Producto Insertado'
 GO
 
---------------------------------Ventas-------------------------------------------------
-DROP PROC Sp_InsertarVentas
-GO
-CREATE PROC Sp_InsertarVentas
-@idPedido char(5)
-as
-	declare @precio char(50)
-	SET @precio = (select(PrecioTotal) from Pedidos where Id=@idPedido)
-	INSERT INTO Ventas(IdPedido,Precio)
-	VALUES(@idPedido,@precio)

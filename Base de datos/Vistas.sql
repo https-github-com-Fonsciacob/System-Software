@@ -97,7 +97,7 @@ go
 
 exec Sp_VistaPedidosEnv
 go
---------------------------------------Vista-Pedidos(Listo para enviar)---------------------------------------------
+--------------------------------------Vista-Pedidos(LISTO PARA ENVIAR)---------------------------------------------
 DROP PROC Sp_VistaPedidosLisEnv
 GO
 CREATE PROCEDURE Sp_VistaPedidosLisEnv
@@ -117,27 +117,7 @@ go
 
 exec Sp_VistaDetallePedido
 go
---------------------------------------Vista-Envio---------------------------------------------
-DROP PROC Sp_VistaEnvio
-GO
-CREATE PROCEDURE Sp_VistaEnvio
-as
-Select * from Envio
-Go
-
-exec Sp_VistaEnvio
-go
---------------------------------------Vista-Ventas---------------------------------------------
-DROP PROC Sp_VistaVentas
-GO
-CREATE PROCEDURE Sp_VistaVentas
-as
-Select * from Ventas
-go
-
-exec Sp_VistaVentas
-go
---------------------------------------Vista-Empleado---------------------------------------------
+--------------------------------------VISTA EMPLEADOS---------------------------------------------
 DROP PROC Sp_VistaEmpleado
 GO
 CREATE PROCEDURE Sp_VistaEmpleado
@@ -175,3 +155,5 @@ SELECT @Pr
 SELECT @Pe 
 SELECT @Cl 
 
+SELECT*FROM DetallePedido
+SELECT*FROM Pedidos
