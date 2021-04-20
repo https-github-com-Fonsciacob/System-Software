@@ -19,13 +19,6 @@ GO
 
 EXEC Sp_VistaCocina
 GO
---------------------------------------Vista Empleado(MOSTRADOR)--------------------------------------
-DROP PROC Sp_VistaMostrador
-GO
-CREATE PROCEDURE Sp_VistaMostrador
-AS
-SELECT*FROM Empleados WHERE IdArea='MOS'
-GO
 --------------------------------------Vista Empleado(ENVIOS)--------------------------------------
 DROP PROC Sp_VistaEmpEnvio
 GO
@@ -66,6 +59,16 @@ go
 
 exec Sp_VistaCategoriaProd
 Go
+--------------------------------------VISTA ENVIO-----------------------------------------------
+DROP PROC Sp_VistaEnvio
+GO
+CREATE PROCEDURE Sp_VistaEnvio
+as
+SELECT Id,IdCliente,IdEnvio,Distrito,Direccion,Estado,CONVERT(varchar,Fecha,100)AS Fecha FROM Pedidos WHERE Estado='Listo para enviar'
+go
+
+exec Sp_VistaEnvio
+go
 
 --------------------------------------VISTA PEDIDOS---------------------------------------------
 DROP PROC Sp_VistaPedidos
@@ -77,16 +80,7 @@ go
 
 exec Sp_VistaPedidos
 go
---------------------------------------Vista-Pedidos(PENDIENTE)---------------------------------------------
-DROP PROC Sp_VistaPedidosPend
-GO
-CREATE PROCEDURE Sp_VistaPedidosPend
-as
-Select * from Pedidos WHERE Estado='Pendiente'
-go
 
-exec Sp_VistaPedidosPend
-go
 --------------------------------------Vista-Pedidos(ENVIADOS)---------------------------------------------
 DROP PROC Sp_VistaPedidosEnv
 GO
@@ -117,6 +111,17 @@ go
 
 exec Sp_VistaDetallePedido
 go
+
+--------------------------------------VISTA DETALLE PEDIDO PENDIENTE---------------------------------------------
+DROP PROC Sp_VistaDetallePedidoPendiente
+GO
+CREATE PROCEDURE Sp_VistaDetallePedidoPendiente
+as
+Select * from DetallePedido WHERE Estado='Pendiente'
+go
+
+exec Sp_VistaDetallePedido
+go
 --------------------------------------VISTA EMPLEADOS---------------------------------------------
 DROP PROC Sp_VistaEmpleado
 GO
@@ -127,11 +132,9 @@ begin
 	Select * from Empleados where Id=@id
 end
 ----------------------------------------------------------------------------------------------------------
-EXEC Sp_VistaEmpleado 'A-002'
-GO
-
 DROP PROC Sp_countTables
 GO
+
 CREATE PROC Sp_countTables
 @intE VARCHAR(10) OUTPUT,
 @intPr VARCHAR(10) OUTPUT,
@@ -144,6 +147,7 @@ AS
 		SET @intPe=(SELECT COUNT(Id) FROM Pedidos)
 		SET @intCl=(SELECT COUNT(Id) FROM Cliente)
 	END
+GO
 
 DECLARE @E VARCHAR(10)
 DECLARE @Pr VARCHAR(10)
@@ -155,5 +159,37 @@ SELECT @Pr
 SELECT @Pe 
 SELECT @Cl 
 
-SELECT*FROM DetallePedido
+--------------------------------------VISTA BOLETA---------------------------------------------
+DROP PROC IF EXISTS SP_vistaBoleta
+GO
+CREATE PROCEDURE SP_vistaBoleta
+@idClient CHAR(5)
+AS
+	SELECT p.IdCliente,p.Fecha,d.NombreProducto,SUM(d.Cantidad) AS Cantidad,SUM(d.Subtotal) AS Subtotal FROM DetallePedido d
+	INNER JOIN Pedidos p
+	ON  p.IdCliente=@idClient
+	WHERE d.Estado!='Enviado' AND p.Id=d.IdPedido
+	GROUP BY p.Fecha,d.NombreProducto,p.IdCliente
+GO
+EXEC SP_vistaBoleta 'C-002'
+--------------------------------------VISTA PRODUCCION---------------------------------------------
+DROP PROC IF EXISTS SP_vistaProduccion
+GO
+CREATE PROCEDURE SP_vistaProduccion
+AS
+	SELECT p.Id,d.NombreProducto,SUM(d.Cantidad) AS Cantidad,p.Estado,CONVERT(varchar,p.Fecha,100)AS Fecha FROM DetallePedido d
+	INNER JOIN Pedidos p
+	ON  p.Id=d.IdPedido
+	WHERE p.Estado='Pendiente'
+	GROUP BY p.Fecha,d.NombreProducto,p.Id,p.Estado
+GO
+
+EXEC SP_vistaProduccion
+
+SELECT*FROM Productos
 SELECT*FROM Pedidos
+SELECT*FROM DetallePedido	
+SELECT*FROM Empleados
+SELECT*FROM Cliente
+DELETE FROM Pedidos
+DELETE FROM Empleados

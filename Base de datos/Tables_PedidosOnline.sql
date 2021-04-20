@@ -22,7 +22,7 @@ create table Empleados(
     Nombres VARCHAR(50) NOT NULL,
     Apellidos VARCHAR(100) NOT NULL,
     DNI CHAR(8) NOT NULL,
-	Img image, 
+	Img IMAGE,
     Contraseña VARCHAR (50) NOT NULL
 );
 
@@ -56,17 +56,12 @@ create table Productos(
 DROP TABLE IF EXISTS Pedidos;
 CREATE TABLE Pedidos(
 	Id CHAR(5) NOT NULL PRIMARY KEY,
-	IdCliente CHAR(5) NOT NULL,
+	IdCliente CHAR(5),
     foreign key (IdCliente) references Cliente(Id),
 	IdEnvio CHAR(5),
 	FOREIGN KEY (IdEnvio) REFERENCES Empleados(Id),
-    IdProducto CHAR(5) NOT NULL,
-	FOREIGN KEY(IdProducto) REFERENCES Productos(Id),
-    Nombre VARCHAR(70) NOT NULL,
-    CantidadProd INT NOT NULL,
-    PrecioTotal MONEY NOT NULL,
-    Distrito VARCHAR(70) NOT NULL,
-    Direccion VARCHAR(70) NOT NULL,
+    Distrito VARCHAR(70) DEFAULT 'Pendiente',
+    Direccion VARCHAR(70) DEFAULT 'Pendiente',
     Fecha SMALLDATETIME,
     Estado VARCHAR(50) DEFAULT 'Pendiente'
 );
@@ -78,19 +73,11 @@ CREATE TABLE DetallePedido(
 	IdProducto CHAR(5) NOT NULL,
 	FOREIGN KEY(IdProducto) REFERENCES Productos(Id),
 	NombreProducto VARCHAR(70) NOT NULL,
+	PrecioUnitario MONEY NOT NULL,
     Cantidad INT NOT NULL,
     Subtotal MONEY NOT NULL,
-	Total MONEY NOT NULL,
-	Fecha SMALLDATETIME,
     Estado VARCHAR(40) DEFAULT 'Pendiente'
 );
 
 
-DROP TABLE IF EXISTS Proveedor
-CREATE TABLE Proveedor(
-	Id CHAR(5) PRIMARY KEY NOT NULL,
-	Nombre VARCHAR(80) NOT NULL,
-	Email VARCHAR(80) NOT NULL,
-	Telefono CHAR(9) NOT NULL,
-)
 

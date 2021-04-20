@@ -30,33 +30,29 @@ GO
 SELECT COUNT(IdCategoria) FROM Productos WHERE IdCategoria='P-001'
 
 ------------------INSERTAR DETALLE PEDIDO------------------------------
-DROP TRIGGER IF EXISTS Tg_DetallePedido
-GO
-CREATE TRIGGER Tg_DetallePedido ON Pedidos AFTER INSERT
-AS 
-DECLARE @IdPedido char(5), @IdProducto char(5), @Cantidad int, 
-        @Impuesto int,@Subtotal MONEY,@nomProd VARCHAR(70),@tPrice MONEY,@fecha SMALLDATETIME,
-		@distrito VARCHAR(70),@direccion VARCHAR(70)
+----DROP TRIGGER IF EXISTS Tg_DetallePedido
+----GO
+----CREATE TRIGGER Tg_DetallePedido ON Pedidos AFTER INSERT
+----AS 
+----DECLARE @IdPedido char(5), @IdProducto char(5), @Cantidad int, 
+----        @Impuesto int,@Subtotal MONEY,@nomProd VARCHAR(70),@tPrice MONEY,@fecha SMALLDATETIME,
+----		@distrito VARCHAR(70),@direccion VARCHAR(70)
         
-    SELECT @IdPedido=Id FROM inserted
-    SELECT @IdProducto=IdProducto FROM inserted
-    SELECT @Cantidad=CantidadProd FROM inserted
-    SELECT @nomProd=Nombre FROM inserted
-	SELECT @distrito=Distrito FROM inserted
-	SELECT @direccion=Direccion FROM inserted
-    SELECT @fecha=Fecha FROM inserted
-    SELECT @tPrice=PrecioTotal FROM inserted
+----    SELECT @IdPedido=Id FROM inserted
+----    SELECT @IdProducto=IdProducto FROM inserted
+----    SELECT @Cantidad=CantidadProd FROM inserted
+----    SELECT @nomProd=Nombre FROM inserted
+----	SELECT @distrito=Distrito FROM inserted
+----	SELECT @direccion=Direccion FROM inserted
+----    SELECT @fecha=Fecha FROM inserted
+----    SELECT @tPrice=PrecioTotal FROM inserted
 
-    SET @Impuesto = ((SELECT (PrecioTotal) FROM Pedidos where Id = @IdPedido)*(0.05))
-    SET @Subtotal=(SELECT (PrecioTotal) FROM Pedidos where Id = @IdPedido)-@Impuesto
+----    SET @Impuesto = ((SELECT (PrecioTotal) FROM Pedidos where Id = @IdPedido)*(0.05))
+----    SET @Subtotal=(SELECT (PrecioTotal) FROM Pedidos where Id = @IdPedido)-@Impuesto
 
-    -------------------DETALLE PEDIDO-------------------------------------
-    INSERT INTO DetallePedido(IdPedido,IdProducto,NombreProducto,Cantidad,Subtotal,Total,Fecha) 
-    VALUES(@IdPedido,@IdProducto,@nomProd,@Cantidad,@Subtotal,@tPrice,@fecha)
-GO
+----GO
 
 ------------------ACTUALIZAR ESTADO DEL ENVIO------------------------------
-
 DROP TRIGGER IF EXISTS tg_updateEnvio
 GO
 CREATE TRIGGER g_updateEnvio ON Pedidos AFTER UPDATE
@@ -69,3 +65,22 @@ AS
     UPDATE DetallePedido SET Estado=@state 
 	WHERE IdPedido=@id
 GO
+
+DROP TRIGGER IF EXISTS tg_updatePedido
+GO
+CREATE TRIGGER tg_updatePedido ON DetallePedido AFTER UPDATE
+AS
+    DECLARE @state VARCHAR(70),@id CHAR(5),@verify VARCHAR(50)
+
+    SELECT @state=(SELECT Estado FROM DetallePedido GROUP BY Estado)
+    SELECT @id=(SELECT IdPedido FROM DetallePedido GROUP BY IdPedido)
+
+	SET @verify=(SELECT Estado FROM DetallePedido WHERE IdPedido='D-001' GROUP BY Estado)
+
+	IF	@verify='Listo para enviar'
+		BEGIN
+		    UPDATE Pedidos SET Estado=@state 
+			WHERE Id=@id
+		END
+GO
+

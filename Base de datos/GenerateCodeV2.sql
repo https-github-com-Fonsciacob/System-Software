@@ -59,6 +59,6 @@ AS
 GO
 
 DECLARE @mensaje VARCHAR(50)
-EXEC sp_genCode 'Empleados','A-',@mensaje OUTPUT
+EXEC sp_genCode 'Cliente','C-',@mensaje OUTPUT
 SELECT @mensaje
        

@@ -20,20 +20,18 @@ as
 		RETURN
 	END
 GO
-
-
 -------------------------AREA DE TRABAJO-----------------------------------------------
 DROP PROC Sp_Insertar_AreaTrabajo
 GO
 CREATE PROC Sp_Insertar_AreaTrabajo
 @Id char(3),
 @NombreArea VARCHAR(40)
-as
-insert into AreaDeTrabajo(Id,NameArea)
-values(@Id,@NombreArea)
+AS
+	INSERT INTO AreaDeTrabajo(Id,NameArea)
+	VALUES(@Id,@NombreArea)
 GO
 
------------------------- Categoria Producto-------------------------------------------
+------------------------ CATEGORIA PRODUCTO-------------------------------------------
 DROP PROC Sp_InsertarCatProducto
 GO
 CREATE PROC Sp_InsertarCatProducto
@@ -50,9 +48,7 @@ as
 exec Sp_InsertarCatProducto Limpieza
 GO
 
-SELECT*FROM CategoriaProd
-GO
-------------------------Cliente------------------------------------------------------
+------------------------CLIENTE------------------------------------------------------
 DROP PROC Sp_InsertarCliente
 GO
 CREATE PROC Sp_InsertarCliente
@@ -80,7 +76,7 @@ CREATE PROC Sp_InsertarEmpleado(
 @img image,
 @Mensaje VARCHAR(50) OUTPUT
 )
-as
+AS
 	DECLARE @Id char(5);
 	DECLARE @result char(5);
 	DECLARE @Contraseña VARCHAR(50)
@@ -102,29 +98,46 @@ as
 		VALUES(@Id,@Area,@Nombres,@Apellidos,@DNI,@img,@Contraseña)
 		SET @Mensaje='Empleado Registrado'
 GO
----------------------------------Pedidos----------------------------------------------
-DROP PROC Sp_InsertarPedidos
+
+--------------------------------GENERAR PEDIDO----------------------------------------
+DROP PROC SP_genPedido 
 GO
-CREATE PROC Sp_InsertarPedidos
-@IdCliente char(5),
-@Cantidad int,
-@IdProducto char(5),
-@Distrito VARCHAR(70),
-@Direccion VARCHAR(70)
-as
-	DECLARE @result char(5), @id char(5), @total MONEY, @precio MONEY,@nomProd VARCHAR(70),@time SMALLDATETIME;
+CREATE PROC SP_genPedido
+@idClient CHAR(5),
+@sms VARCHAR(30) OUTPUT
+AS
+	DECLARE @result char(5), @id char(5),@time SMALLDATETIME;
 	EXEC sp_genCode'Pedidos','D-',@result output;
 
-	SET @time=GETDATE();
-	SET @Id = (SELECT @result);
-	SET @precio = (SELECT(precio) FROM Productos WHERE Id = @IdProducto)
-	SET @nomProd=(SELECT(Nombre) FROM Productos WHERE Id=@IdProducto)
-	SET @total = @precio * @Cantidad
-
-	INSERT INTO Pedidos(Id,IdCliente,IdProducto,Nombre,CantidadProd,PrecioTotal,Distrito,Direccion,Fecha)
-	VALUES(@id,@IdCliente,@IdProducto,@nomProd,@Cantidad,@total,@Distrito,@Direccion,@time)
+	IF(LEN(@idClient)=0)
+		BEGIN
+			SET @sms='Inicie Sesion'
+			RETURN
+		END
+	ELSE
+		SET @time=GETDATE();
+		SET @id = (SELECT @result);
+		INSERT INTO Pedidos(Id,IdCliente,Fecha)
+		VALUES(@id,@idClient,@time)
 GO
----------------------------------CateGOrias Productos--------------------------------------------
+---------------------------------INSERTAR DETALLE PEDIDO----------------------------------------------
+DROP PROC Sp_insertDetailPedido
+GO
+CREATE PROC Sp_insertDetailPedido
+@idPedido CHAR(5),
+@idProducto CHAR(5),
+@cantidad INT
+AS
+	DECLARE @priceSub MONEY,@priceUnit Money,@nameProduct VARCHAR(70)
+
+	SET @nameProduct=(SELECT Nombre FROM Productos WHERE Id=@idProducto)
+	SET @priceUnit=(SELECT Precio FROM Productos WHERE Id=@idProducto)
+	SET @priceSub=(@priceUnit*@cantidad)
+
+	INSERT INTO DetallePedido (IdPedido,IdProducto,NombreProducto,PrecioUnitario,Cantidad,Subtotal)
+	VALUES(@idPedido,@idProducto,@nameProduct,@priceUnit,@cantidad,@priceSub) 
+GO
+---------------------------------CATEGORIAS PRODUCTOS--------------------------------------------
 DROP PROC Sp_InsertarCatProducto
 GO
 CREATE PROC Sp_InsertarCatProducto
@@ -155,4 +168,3 @@ as
 	values(@result,@IdCateGOria,@Nombre,@Precio)
 	SET @Mensaje='Producto Insertado'
 GO
-

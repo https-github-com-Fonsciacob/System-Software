@@ -1,5 +1,4 @@
-USE PedidosOnline;
---------------------EMPLEADO
+--------------------EMPLEADO---------
 DROP PROCEDURE IF EXISTS sp_updateEmpleados
 GO
 CREATE PROCEDURE sp_updateEmpleados
@@ -13,7 +12,7 @@ AS
     WHERE Id=@id
     SET @resultado='Registro Actualizado'
 GO
-----------------CLIENTE
+----------------CLIENTE--------------------------------
 DROP PROCEDURE IF EXISTS sp_updateCliente
 GO
 CREATE PROCEDURE sp_updateCliente
@@ -25,7 +24,7 @@ AS
     UPDATE Cliente SET Nombres=@Nombre,Apellido=@Apellidos,Contraseña=@pass
     WHERE Id=@id
 GO
-----------------CATEGORIA PRODUCTO
+----------------CATEGORIA PRODUCTO------------------------
 DROP PROCEDURE IF EXISTS sp_updateCategoriaProd
 GO
 CREATE PROCEDURE sp_updateCategoriaProd
@@ -37,7 +36,7 @@ AS
     WHERE Id=@id
     SET @resultado='Categoría Actualizado'
 GO
-----------------AREA TRABAJO
+----------------AREA TRABAJO--------------------------
 USE PedidosOnline
 GO
 DROP PROCEDURE IF EXISTS sp_updateAreaTrabajo
@@ -49,7 +48,7 @@ AS
     UPDATE AreaDeTrabajo SET NameArea=@Nombre
     WHERE Id=@id
 GO
---------------------MENU
+--------------------MENU-------------------------------
 DROP PROCEDURE IF EXISTS sp_updateMenu
 GO
 CREATE PROCEDURE sp_updateMenu
@@ -62,12 +61,24 @@ AS
     WHERE Id=@id
     SET @result='Menu Actualizado'
 GO
------------------PEDIDO
+-----------------PEDIDO-------------------------
 DROP PROCEDURE IF EXISTS sp_updatePedido
 GO
 CREATE PROCEDURE sp_updatePedido
     @id CHAR(5),
+	@idEnvio CHAR(5),
     @state VARCHAR(50)
 AS
-    UPDATE Pedidos SET Estado=@state WHERE Id=@id
+    UPDATE Pedidos SET Estado=@state, IdEnvio=@idEnvio
+	WHERE Id=@id
+GO
+
+-----------------DETALLE PEDIDO--------------------
+DROP PROCEDURE IF EXISTS sp_updateDetailPedido
+GO
+CREATE PROCEDURE sp_updateDetailPedido
+    @id CHAR(5),
+    @state VARCHAR(50)
+AS
+    UPDATE DetallePedido SET Estado=@state WHERE IdPedido=@id
 GO

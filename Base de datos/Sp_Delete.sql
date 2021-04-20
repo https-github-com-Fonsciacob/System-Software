@@ -1,6 +1,4 @@
-USE PedidosOnline
-GO
-
+------------------------------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS Sp_EliminarEmpleados
 GO
 CREATE PROCEDURE Sp_EliminarEmpleados
@@ -20,17 +18,6 @@ CREATE PROCEDURE Sp_EliminarCliente
 AS
 	DELETE FROM Cliente WHERE Id=@id
 	SET @resultado='Cliente Eliminado'
-GO
-
---------------------------------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS Sp_EliminarEnvio
-GO
-CREATE PROCEDURE Sp_EliminarEnvio
-@idpedido char(5),
-@resultado VARCHAR(50) OUTPUT
-AS
-	DELETE FROM Envio WHERE IdPedido=@idpedido
-	SET @resultado='Envio Eliminado'
 GO
 
 --------------------------------------------------------------------------------------------------------
